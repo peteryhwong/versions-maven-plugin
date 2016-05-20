@@ -307,7 +307,27 @@ public class PropertyVersions
         return "PropertyVersions{" + ( profileId == null ? "" : "profileId='" + profileId + "', " ) + "name='" + name
             + '\'' + ", associations=" + associations + '}';
     }
+    
+    public ArtifactVersion getNextVersion( String currentVersion, Property property, Boolean allowSnapshots,
+                    List reactorProjects, VersionsHelper helper )
+                        throws MojoExecutionException
 
+    {
+        final boolean includeSnapshots = !property.isBanSnapshots() && Boolean.TRUE.equals( allowSnapshots );
+        helper.getLog().debug( "Property ${" + property.getName() + "}: Set of valid available versions is "
+            + Arrays.asList( getVersions( includeSnapshots ) ) );
+     
+        ArtifactVersion[] versions = getNewerVersions( currentVersion, includeSnapshots );
+        ArtifactVersion result = null;
+        if (versions.length > 0) 
+        {
+            result = versions[0];
+        }
+        
+        helper.getLog().debug( "Property ${" + property.getName() + "}: Current winner is: " + result );
+        return result;
+    }
+    
     public ArtifactVersion getNewestVersion( String currentVersion, Property property, Boolean allowSnapshots,
                                              List reactorProjects, VersionsHelper helper )
                                                  throws MojoExecutionException
