@@ -55,6 +55,11 @@ public class UseNextVersionsMojo
 {
 
     /**
+     * Pattern to match a snapshot version.
+     */
+    private static final Pattern MATCH_SNAPSHOT_REGEX = Pattern.compile( "^(.+)-((SNAPSHOT)|(\\d{8}\\.\\d{6}-\\d+))$" );
+
+    /**
      * Whether to set the parent to the next parent version. If not set will default to false.
      *
      * @parameter property="processParent" defaultValue="false"
@@ -102,11 +107,6 @@ public class UseNextVersionsMojo
      */
     private Boolean autoLinkItems;
     
-    /**
-     * Pattern to match a snapshot version.
-     */
-    private final Pattern matchSnapshotRegex = Pattern.compile( "^(.+)-((SNAPSHOT)|(\\d{8}\\.\\d{6}-\\d+))$" );
-
     // ------------------------------ METHODS --------------------------
 
     /**
@@ -171,7 +171,7 @@ public class UseNextVersionsMojo
 
         String currentVersion = parent.getVersion();
         
-        Matcher versionMatcher = matchSnapshotRegex.matcher( currentVersion );
+        Matcher versionMatcher = MATCH_SNAPSHOT_REGEX.matcher( currentVersion );
         if ( !versionMatcher.matches() && processSnapshotsOnly )
         {
             getLog().info( "Ignoring non-snapshot parent " + parent.getGroupId() + ":" +  parent.getArtifactId());
@@ -231,7 +231,7 @@ public class UseNextVersionsMojo
             boolean canUpdateProperty = true;
             for ( ArtifactAssociation association : version.getAssociations() )
             {
-                if ( !( isIncluded( association.getArtifact() ) ) )
+                if ( ! isIncluded( association.getArtifact() ) )
                 {
                     getLog().info( "Not updating the property ${" + property.getName()
                     + "} because it is used by artifact " + association.getArtifact().toString()
@@ -241,7 +241,7 @@ public class UseNextVersionsMojo
                 }
             }
             
-            Matcher versionMatcher = matchSnapshotRegex.matcher( currentVersion );
+            Matcher versionMatcher = MATCH_SNAPSHOT_REGEX.matcher( currentVersion );
             if ( !versionMatcher.matches() && processSnapshotsOnly )
             {
                 getLog().info( "Ignoring non-snapshot property  ${" + property.getName() + "}" );
@@ -285,7 +285,7 @@ public class UseNextVersionsMojo
 
             String version = dep.getVersion();
             
-            Matcher versionMatcher = matchSnapshotRegex.matcher( version );
+            Matcher versionMatcher = MATCH_SNAPSHOT_REGEX.matcher( version );
             if ( !versionMatcher.matches() && processSnapshotsOnly )
             {
                 getLog().info( "Ignoring non-snapshot dependency: " + toString( dep ) );
